@@ -14,7 +14,6 @@ See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 """
 import logging
-import sys
 
 from decouple import config
 from dj_database_url import parse as db_url
@@ -79,7 +78,7 @@ INSTALLED_APPS = (
     'floppyforms',
     'sass_processor',
     'rest_framework',
-
+    'reversion',
 
 ) + SAPL_APPS
 
