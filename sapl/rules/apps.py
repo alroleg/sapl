@@ -10,6 +10,9 @@ from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 import django
+from django.dispatch import receiver
+from django.db.models.signals import pre_delete
+import reversion
 
 from sapl.rules import (SAPL_GROUP_ADMINISTRATIVO, SAPL_GROUP_COMISSOES,
                         SAPL_GROUP_GERAL, SAPL_GROUP_MATERIA, SAPL_GROUP_NORMA,
@@ -233,3 +236,11 @@ models.signals.post_migrate.connect(
 models.signals.post_migrate.connect(
     receiver=create_proxy_permissions,
     dispatch_uid="django.contrib.auth.management.create_permissions")
+
+
+@receiver(pre_delete)
+def revision_pre_delete_signal(sender, **kwargs):
+    if sender.__name__ not in ['Version', 'Revision']:
+        with reversion.create_revision():
+            kwargs['instance'].save()
+            reversion.set_comment("Deletado.")
